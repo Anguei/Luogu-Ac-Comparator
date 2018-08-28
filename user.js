@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp
 // @match        https://www.luogu.org/space/*
@@ -11,8 +11,8 @@
 
 /*
  * 这是一个注释区，用于保存 TODO 之类的东西
- * 由于暂时不知道如何更改页面颜色，所以只能用 alert() 或者 console.log 显示。
- * 现在使用的是 O(n^2) 的比较算法。如果出现了 AC 数千的神犇，或许需要改为二分算法。
+ * 如果网络不是很好，可能会出现卡顿的情况。
+ * 现在使用的是 O(n^2) 的比较算法。如果出现了 AC 了数千题神犇，或许需要改为二分算法。
 */
 
 
@@ -61,10 +61,23 @@ function getAc(uid) {
     console.log('got ' + uid + "'s AC list: " + xhr.status);
     if (xhr.status == 200) {
         // console.log(xhr.responseText);
-        return extractData(xhr.responseText); // 返回自己的 AC 列表
+        return extractData(xhr.responseText); // 返回 AC 列表
     } else {
-        return undefined;
+        return []; // 空列表
     }
+}
+
+
+function changeStyle(pid, meToo) {
+    var cssSelector = "a[href='/problem/show?pid=" + pid + "']";
+    document.querySelector(cssSelector).style.color = meToo ? "#008000" : "red"; // 绿色表示也 AC。红色表示未 AC
+    // document.querySelector(cssSelector).style.fontWeight = meToo ? "normal" : "bold"; // 加粗有点血腥，算了
+}
+
+function displayTot(tot) {
+    var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div > h2";
+    document.querySelector(cssSelector).style.fontSize = "18px"; // 避免在一些低分辨率显示器上一行显示不开
+    document.querySelector(cssSelector).textContent = "通过题目（其中有 " + tot + " 道题你尚未 AC）";
 }
 
 
@@ -73,30 +86,34 @@ function compare(hisAc, myAc) {
     for (var i = 0; i < hisAc.length; i++) {
         var meToo = false; // 自己是否 AC 过
         for (var j = 0; j < myAc.length; j++) {
-            if (hisAc[i] == myAc[j]) {
+            if (hisAc[i] == myAc[j]) { // 也 AC 了
                 meToo = true;
                 tot--;
                 break;
             }
         }
-        if (meToo == false) {
-            console.log('[' + hisAc[i] + '] you have not accepted');
-        }
+        changeStyle(hisAc[i], meToo); // 更改题号样式
     }
-    console.log('Finished! 一共有 ' + tot + ' 道题目是对方 AC 了你没有 AC 的。');
+    displayTot(tot); // 显示未 AC 总数
 }
 
 
 function work() {
-    console.log("this monkey is working now...");
     var myAc = getAc(myUid);
     var hisAc = getAc(hisUid);
     // console.log(myAc);
-    // console.log(hisAc);
-    compare(hisAc, myAc);
+    console.log(hisAc);
+    if (hisAc.length > 0) { // 对方没开完全隐私保护
+        compare(hisAc, myAc);
+    }
+    console.log("对方开启了完全隐私保护，无法比较。");
 }
 
 
+function displayAcCntForThousandsShenBen(AcCnt) {
+    var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div > h2";
+    document.querySelector(cssSelector).textContent = "通过题目（共 " + AcCnt + " 道题）";
+}
 
 
 var myUid = document.getElementsByClassName("am-topbar-brand")[0].attributes["myuid"].value; // 获取当前登录账号的 uid
@@ -104,6 +121,11 @@ var myUrl = 'https://www.luogu.org/space/show?uid=' + myUid; // 获取自己个�
 var nowUrl = window.location.href; // 获取当前所在个人主页的 URL
 var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 获取当前所在个人空间主人的 UID
 
-if (myUrl != nowUrl) {
+if (myUrl != nowUrl) { // 只有访问他人个人空间才进行比较
     work();
+} else { // 要对千题神犇们特别添加一个功能
+    var myAcCnt = getAc(myUid).length
+    if (myAcCnt >= 1000) {
+        displayAcCntForThousandsShenBen(myAcCnt);
+    }
 }
