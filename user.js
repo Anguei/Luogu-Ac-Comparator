@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp
 // @match        https://www.luogu.org/space/*
@@ -69,13 +69,13 @@ function getAc(uid) {
 
 
 function compare(hisAc, myAc) {
-    var tot = 0; // 对方 AC 自己却没有 AC 的总数
+    var tot = hisAc.length; // 对方 AC 自己却没有 AC 的总数
     for (var i = 0; i < hisAc.length; i++) {
         var meToo = false; // 自己是否 AC 过
         for (var j = 0; j < myAc.length; j++) {
             if (hisAc[i] == myAc[j]) {
                 meToo = true;
-                tot++;
+                tot--;
                 break;
             }
         }
