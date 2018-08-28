@@ -14,7 +14,7 @@
 
 示例：（顺便膜拜 lk）
 
-![example](https://s1.ax1x.com/2018/08/28/PO16l4.png)
+![example](https://s1.ax1x.com/2018/08/29/POcDq1.png)
 
 **注意：如果对方开启了完全隐私保护，此脚本不可用。**
 
