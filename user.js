@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      1.2.1
+// @version      1.2.3
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp
 // @match        https://www.luogu.org/space/*
@@ -98,8 +98,13 @@ function compare(hisAc, myAc) {
 }
 
 
-function displayAcCntForThousandsShenBen(AcCnt) { // 把千题换为 k 显示
+function displayAcCntMoreThan1050(AcCnt) { // 把千题换为 k 显示（多于 1050）
     var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(3) > ul > li:nth-child(2) > span.lg-bignum-num";
+    document.querySelector(cssSelector).textContent = AcCnt;
+}
+
+function displayAcCntLessThan1050(AcCnt) { // 少于 1050
+    var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(2) > ul > li:nth-child(2) > span.lg-bignum-num";
     document.querySelector(cssSelector).textContent = AcCnt;
 }
 
@@ -110,10 +115,14 @@ function work() {
     // console.log(myAc);
     console.log(hisAc);
     if (hisAc.length > 0) { // 对方没开完全隐私保护
-        if (hisAc.length >= 1000) {
-            displayAcCntForThousandsShenBen(hisAc.length);
-        }
         compare(hisAc, myAc);
+        if (hisAc.length >= 1000) {
+            if (hisAc.length >= 1050) {
+                displayAcCntMoreThan1050(hisAc.length);
+            } else {
+                displayAcCntLessThan1050(hisAc.length);
+            }
+        }
     }
     console.log("对方开启了完全隐私保护，无法比较。");
 }
@@ -129,6 +138,10 @@ if (myUrl != nowUrl) { // 只有访问他人个人空间才进行比较
 } else { // 要对千题神犇们特别添加一个功能
     var myAcCnt = getAc(myUid).length
     if (myAcCnt >= 1000) {
-        displayAcCntForThousandsShenBen(myAcCnt);
+        if (myAcCnt >= 1050) { // 洛谷对于 1k 和 1.1k+ 的页面结构不太一样
+            displayAcCntMoreThan1050(myAcCnt);
+        } else {
+            displayAcCntLessThan1050(myAcCnt);
+        }
     }
 }
