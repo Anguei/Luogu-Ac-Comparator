@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.2.1
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp
 // @match        https://www.luogu.org/space/*
@@ -11,7 +11,7 @@
 
 /*
  * 这是一个注释区，用于保存 TODO 之类的东西
- * 如果网络不是很好，可能会出现卡顿的情况。 
+ * 如果网络不是很好，可能会出现卡顿的情况。
  * 现在使用的是 O(n^2) 的比较算法。如果出现了 AC 了数千题神犇，或许需要改为二分算法。
 */
 
@@ -98,21 +98,24 @@ function compare(hisAc, myAc) {
 }
 
 
+function displayAcCntForThousandsShenBen(AcCnt) { // 把千题换为 k 显示
+    var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(3) > ul > li:nth-child(2) > span.lg-bignum-num";
+    document.querySelector(cssSelector).textContent = AcCnt;
+}
+
+
 function work() {
     var myAc = getAc(myUid);
     var hisAc = getAc(hisUid);
     // console.log(myAc);
     console.log(hisAc);
     if (hisAc.length > 0) { // 对方没开完全隐私保护
+        if (hisAc.length >= 1000) {
+            displayAcCntForThousandsShenBen(hisAc.length);
+        }
         compare(hisAc, myAc);
     }
     console.log("对方开启了完全隐私保护，无法比较。");
-}
-
-
-function displayAcCntForThousandsShenBen(AcCnt) {
-    var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div > h2";
-    document.querySelector(cssSelector).textContent = "通过题目（共 " + AcCnt + " 道题）";
 }
 
 
