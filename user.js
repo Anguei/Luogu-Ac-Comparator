@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      1.2.3
+// @version      1.2.4
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp
 // @match        https://www.luogu.org/space/*
@@ -113,7 +113,7 @@ function work() {
     var myAc = getAc(myUid);
     var hisAc = getAc(hisUid);
     // console.log(myAc);
-    console.log(hisAc);
+    // console.log(hisAc);
     if (hisAc.length > 0) { // 对方没开完全隐私保护
         compare(hisAc, myAc);
         if (hisAc.length >= 1000) {
@@ -123,8 +123,9 @@ function work() {
                 displayAcCntLessThan1050(hisAc.length);
             }
         }
+    } else {
+        console.log("对方开启了完全隐私保护，无法比较。");
     }
-    console.log("对方开启了完全隐私保护，无法比较。");
 }
 
 
