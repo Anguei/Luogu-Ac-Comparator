@@ -41,7 +41,6 @@ function extractData(content) {
     // 如果你有一个问题打算用正则表达式来解决，那么就是两个问题了。
     // 所以窝还是用 split() 解决这一个问题吧！
     var acs = content.replace(/<span style=\"display:none\">\n.*?\n<\/span>/g, ''); // 把随机的干扰题号去除
-    console.log(acs);
     acs = acs.split('[<a data-pjax href="/problem/show?pid='); // 使用 split() 方法把通过的题目分割出来
     acs = clearData(acs); // 把分割好的数据清洁一下
     return acs;
@@ -56,7 +55,6 @@ function getAc(uid) {
     console.log('got ' + uid + "'s AC list: " + xhr.status);
     if (xhr.status == 200) {
         // console.log(xhr.responseText);
-        console.log(extractData(xhr.responseText));
         return extractData(xhr.responseText); // 返回 AC 列表
     } else {
         return []; // 空列表
