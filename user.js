@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      1.2.6
+// @version      1.2.7
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp
 // @match        https://www.luogu.org/space/*
@@ -64,7 +64,11 @@ function getAc(uid) {
 
 function changeStyle(pid, meToo) {
     var cssSelector = "a[href='/problem/show?pid=" + pid + "']";
-    document.querySelector(cssSelector).style.color = meToo ? "#008000" : "red"; // 绿色表示也 AC。红色表示未 AC
+    // 由于洛谷使用随机页面结构，导致了一点小问题，所以要 querySelectorAll，防止染色失败
+    var elements = document.querySelectorAll(cssSelector);
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].style.color = meToo ? "#008000" : "red"; // // 绿色表示也 AC。红色表示未 AC
+    }
     // document.querySelector(cssSelector).style.fontWeight = meToo ? "normal" : "bold"; // 加粗有点血腥，算了
 }
 
@@ -106,8 +110,8 @@ function displayAcCntForThousandShenBen(AcCnt) {
 function work() {
     var myAc = getAc(myUid);
     var hisAc = getAc(hisUid);
-    // console.log(myAc);
-    // console.log(hisAc);
+    console.log(myAc);
+    console.log(hisAc);
     if (hisAc.length > 0) { // 对方没开完全隐私保护
         compare(hisAc, myAc);
         if (hisAc.length >= 1000) {
