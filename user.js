@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
-// @version      1.2.5-2
+// @version      1.2.7-1
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -41,14 +41,8 @@ function clearData(acs) {
 function extractData(content) {
     // 如果你有一个问题打算用正则表达式来解决，那么就是两个问题了。
     // 所以窝还是用 split() 解决这一个问题吧！
-    // var re = new RegExp('\[<a data-pjax href="/problem/show\?pid=.*?">.*?</a>\]', 'g');
-    // console.log(re.test(content));
-    // var acs = content.match('/\[<a data-pjax href="/problem/show\?pid=(\S*)">(\S*)</a>\]/');
-    // var acs = content.match(/^[<a data-pjax href="\/problem\/show\?pid=[A-Z]+[0-9]+">[A-Z]+[0-9]+<\/a>]/g);
-    // console.log(acs);
-    // var acs = content.replace(/\[<a data-pjax href="\/problem\/show\?pid=[A-Z]+[0-9]+>/g, '').replace(/<\/a>\]/g, ' ').split(' ');
-    // console.log(acs);
-    var acs = content.split('[<a data-pjax href="/problem/show?pid='); // 使用 split() 方法把通过的题目分割出来
+    var acs = content.replace(/<span style=\"display:none\">\n.*?\n<\/span>/g, ''); // 把随机的干扰题号去除
+    acs = acs.split('[<a data-pjax href="/problem/show?pid='); // 使用 split() 方法把通过的题目分割出来
     acs = clearData(acs); // 把分割好的数据清洁一下
     return acs;
 }
@@ -70,12 +64,19 @@ function getAc(uid) {
 
 function changeStyle(pid, meToo) {
     var cssSelector = "a[href='/problem/show?pid=" + pid + "']";
-    document.querySelector(cssSelector).style.color = meToo ? "#008000" : "#FF0000"; // 绿色表示也 AC。红色表示未 AC
-    // document.querySelector(cssSelector).style.fontWeight = meToo ? "normal" : "bold"; // 加粗有点血腥，算了
+    // 由于洛谷使用随机页面结构，导致了一点小问题，所以要 querySelectorAll，防止染色失败
+    var elements = document.querySelectorAll(cssSelector);
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].style.color = meToo ? "#008000" : "#FF0000";
+    }
 }
 function changeStyle2(pid, meToo) {
     var cssSelector = "a[href='/problem/show?pid=" + pid + "']";
-    document.querySelector(cssSelector).style.color = meToo ? "#FF9900" : "red";
+    // 由于洛谷使用随机页面结构，导致了一点小问题，所以要 querySelectorAll，防止染色失败
+    var elements = document.querySelectorAll(cssSelector);
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].style.color = meToo ? "#FF9900" : "#FF0000";
+    }
 }
 
 function displayTot(tot) {
@@ -99,14 +100,14 @@ function compare(hisAc, myAc, myAttempt) {
         changeStyle(hisAc[i], meToo);
         if(!meToo){
             for (var j = 0; j < myAttempt.length; j++) {
-                if (hisAc[i] == myAttempt[j]) { 
+                if (hisAc[i] == myAttempt[j]) {
                     meToo = true;
                     break;
                 }
             }
-            changeStyle2(hisAc[i], meToo); 
+            changeStyle2(hisAc[i], meToo);
         }
-        
+
     }
     displayTot(tot); // 显示未 AC 总数
 }
