@@ -149,7 +149,7 @@ var myUid = document.getElementsByClassName("am-topbar-brand")[0].attributes["my
 var nowUrl = window.location.href; // 获取当前所在个人主页的 URL
 var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 获取当前所在个人空间主人的 UID
 
-if (myUid != nowUid) { // 只有访问他人个人空间才进行比较（将URL比较转换为UID比较）
+if (myUid != hisUid) { // 只有访问他人个人空间才进行比较（将URL比较转换为UID比较）
     work();
 } else {
     var myAcCnt = getAc(myUid)[0].length;
