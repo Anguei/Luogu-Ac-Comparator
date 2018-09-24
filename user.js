@@ -68,7 +68,7 @@ function changeStyle(pid, meToo) {
     // 由于洛谷使用随机页面结构，导致了一点小问题，所以要 querySelectorAll，防止染色失败
     var elements = document.querySelectorAll(cssSelector);
     for (var i = 0; i < elements.length; i++) {
-        elements[i].style.color = meToo ? "#008000" : "#FF0000";
+        elements[i].style.color = meToo ? "#008000" : "red";
     }
 }
 function changeStyle2(pid, meToo) {
@@ -76,7 +76,7 @@ function changeStyle2(pid, meToo) {
     // 由于洛谷使用随机页面结构，导致了一点小问题，所以要 querySelectorAll，防止染色失败
     var elements = document.querySelectorAll(cssSelector);
     for (var i = 0; i < elements.length; i++) {
-        elements[i].style.color = meToo ? "#FF9900" : "#FF0000";
+        elements[i].style.color = meToo ? "#FF9900" : "red";
     }
 }
 
