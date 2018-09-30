@@ -15,9 +15,11 @@
 
 红色显示你未 AC 的题目，绿色显示也通过的题目。橙色显示你尝试过的题目。
 
-示例：（顺便膜拜 lk）
+示例：（顺便膜拜 lk、Sooke）
 
-![example](https://s1.ax1x.com/2018/09/30/i1SUJS.png)
+![example1](https://s1.ax1x.com/2018/09/30/i1SUJS.png)
+
+![example2](https://s1.ax1x.com/2018/09/30/i1SaRg.png)
 
 **注意：如果对方开启了完全隐私保护，此脚本不可用。**
 
