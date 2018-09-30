@@ -19,7 +19,7 @@
 
 ![example1](https://s1.ax1x.com/2018/09/30/i1P59K.png)
 
-![example2](https://s1.ax1x.com/2018/09/30/i1P59K.png)
+![example2](https://s1.ax1x.com/2018/09/30/i1PI1O.png)
 
 **注意：如果对方开启了完全隐私保护，此脚本不可用。**
 
