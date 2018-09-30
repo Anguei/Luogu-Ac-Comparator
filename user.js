@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      1.3.0
+// @version      1.3.1
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -100,8 +100,8 @@ function compare(hisAc, myAc, myAttempt) {
         }
         changeStyle(hisAc[i], meToo);
         if(!meToo){
-            for (var j = 0; j < myAttempt.length; j++) {
-                if (hisAc[i] == myAttempt[j]) { // 没有 AC 却尝试过
+            for (var j2 = 0; j2 < myAttempt.length; j2++) { // 变量名为 j2 为了避免傻逼油猴的警告
+                if (hisAc[i] == myAttempt[j2]) { // 没有 AC 却尝试过
                     meToo = true;
                     break;
                 }
@@ -114,18 +114,22 @@ function compare(hisAc, myAc, myAttempt) {
 }
 
 
+function changeAcColor(cssSelector, AcCnt) {
+    if(AcCnt >= 1275) document.querySelector(cssSelector).style = "color:#FF0000;";
+    else if(AcCnt >= 867) document.querySelector(cssSelector).style = "color:rgb(255," + ((1275 - AcCnt) / 2) + ",0);";
+    else if(AcCnt >= 765) document.querySelector(cssSelector).style = "color:rgb(" + ((AcCnt - 357)/2) + "," + ((1275-AcCnt)/2) + ",0);";
+    else if(AcCnt >= 459) document.querySelector(cssSelector).style = "color:rgb(" + ((AcCnt - 357)/2) + ",255,0);";
+    else if(AcCnt >= 357) document.querySelector(cssSelector).style = "color:rgb(51," + ((AcCnt + 51)/2) + "," + (459-AcCnt) + ");";
+    else if(AcCnt >= 204) document.querySelector(cssSelector).style = "color:rgb(51," + (AcCnt - 153) + "," + (459-AcCnt) + ");";
+    else document.querySelector(cssSelector).style = "color:rgb(51,51," + (51 + AcCnt) + ");";
+}
+
 function displayAcCnt(AcCnt) {
     for (var i = 2; i <= 3; i++) {  // 解决页面结构不稳定导致的 AC 数无法正常显示问题
         var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(" + i + ") > ul > li:nth-child(2) > span.lg-bignum-num";
         if (document.querySelector(cssSelector) != null) { // 确定了 AC 数的选择器
             document.querySelector(cssSelector).textContent = AcCnt; // 更新 AC 数
-            if(AcCnt >= 1275)document.querySelector(cssSelector).style = "color:#FF0000;";
-            else if(AcCnt >= 867) document.querySelector(cssSelector).style = "color:rgb(255," + ((1275 - AcCnt) / 2) + ",0);";
-            else if(AcCnt >= 765) document.querySelector(cssSelector).style = "color:rgb(" + ((AcCnt - 357)/2) + "," + ((1275-AcCnt)/2) + ",0);";
-            else if(AcCnt >= 459) document.querySelector(cssSelector).style = "color:rgb(" + ((AcCnt - 357)/2) + ",255,0);";
-            else if(AcCnt >= 357) document.querySelector(cssSelector).style = "color:rgb(51," + ((AcCnt + 51)/2) + "," + (459-AcCnt) + ");";
-            else if(AcCnt >= 204) document.querySelector(cssSelector).style = "color:rgb(51," + (AcCnt - 153) + "," + (459-AcCnt) + ");";
-            else document.querySelector(cssSelector).style = "color:rgb(51,51," + (51 + AcCnt) + ");";
+            // changeAcColor(cssSelector, AcCnt); // 据用户反应，颜色关掉吧
             break;
         }
     }
@@ -149,7 +153,7 @@ var myUid = document.getElementsByClassName("am-topbar-brand")[0].attributes["my
 var nowUrl = window.location.href; // 获取当前所在个人主页的 URL
 var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 获取当前所在个人空间主人的 UID
 
-if (myUid != hisUid) { // 只有访问他人个人空间才进行比较（将URL比较转换为UID比较）
+if (myUid != hisUid) { // 只有访问他人个人空间才进行比较（将 URL 比较转换为 UID 比较）
     work();
 } else {
     var myAcCnt = getAc(myUid)[0].length;
