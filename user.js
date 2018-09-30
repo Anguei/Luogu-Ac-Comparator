@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      1.2.7-3
+// @version      1.3.0
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -63,7 +63,7 @@ function getAc(uid) {
 }
 
 
-function changeStyle(pid, meToo) {
+function changeStyle(pid, meToo) { // AC 过的题目
     var cssSelector = "a[href='/problem/show?pid=" + pid + "']";
     // 由于洛谷使用随机页面结构，导致了一点小问题，所以要 querySelectorAll，防止染色失败
     var elements = document.querySelectorAll(cssSelector);
@@ -71,12 +71,12 @@ function changeStyle(pid, meToo) {
         elements[i].style.color = meToo ? "#008000" : "red";
     }
 }
-function changeStyle2(pid, meToo) {
+
+function changeStyle2(pid, meToo) { // 尝试过的题目
     var cssSelector = "a[href='/problem/show?pid=" + pid + "']";
-    // 由于洛谷使用随机页面结构，导致了一点小问题，所以要 querySelectorAll，防止染色失败
     var elements = document.querySelectorAll(cssSelector);
     for (var i = 0; i < elements.length; i++) {
-        elements[i].style.color = meToo ? "#FF9900" : "red";
+        elements[i].style.color = meToo ? "#ff8c00" : "red";
     }
 }
 
@@ -101,7 +101,7 @@ function compare(hisAc, myAc, myAttempt) {
         changeStyle(hisAc[i], meToo);
         if(!meToo){
             for (var j = 0; j < myAttempt.length; j++) {
-                if (hisAc[i] == myAttempt[j]) {
+                if (hisAc[i] == myAttempt[j]) { // 没有 AC 却尝试过
                     meToo = true;
                     break;
                 }
@@ -115,17 +115,17 @@ function compare(hisAc, myAc, myAttempt) {
 
 
 function displayAcCnt(AcCnt) {
-    for (var i = 2; i <= 3; i++) {  // 解决页面结构不稳定导致的 AC 数又是无法正常显示问题
+    for (var i = 2; i <= 3; i++) {  // 解决页面结构不稳定导致的 AC 数无法正常显示问题
         var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(" + i + ") > ul > li:nth-child(2) > span.lg-bignum-num";
         if (document.querySelector(cssSelector) != null) { // 确定了 AC 数的选择器
             document.querySelector(cssSelector).textContent = AcCnt; // 更新 AC 数
             if(AcCnt >= 1275)document.querySelector(cssSelector).style = "color:#FF0000;";
-            else if(AcCnt >= 867)document.querySelector(cssSelector).style = "color:rgb(255,"+((1275-AcCnt)/2)+",0);";
-            else if(AcCnt >= 765) document.querySelector(cssSelector).style = "color:rgb("+((AcCnt-357)/2)+","+((1275-AcCnt)/2)+",0);";
-            else if(AcCnt >= 459) document.querySelector(cssSelector).style = "color:rgb("+((AcCnt-357)/2)+",255,0);";
-            else if(AcCnt >= 357) document.querySelector(cssSelector).style = "color:rgb(51,"+((AcCnt+51)/2)+","+(459-AcCnt)+");";
-            else if(AcCnt >= 204) document.querySelector(cssSelector).style = "color:rgb(51,"+(AcCnt-153)+","+(459-AcCnt)+");";
-            else document.querySelector(cssSelector).style = "color:rgb(51,51,"+(51+AcCnt)+");";
+            else if(AcCnt >= 867) document.querySelector(cssSelector).style = "color:rgb(255," + ((1275 - AcCnt) / 2) + ",0);";
+            else if(AcCnt >= 765) document.querySelector(cssSelector).style = "color:rgb(" + ((AcCnt - 357)/2) + "," + ((1275-AcCnt)/2) + ",0);";
+            else if(AcCnt >= 459) document.querySelector(cssSelector).style = "color:rgb(" + ((AcCnt - 357)/2) + ",255,0);";
+            else if(AcCnt >= 357) document.querySelector(cssSelector).style = "color:rgb(51," + ((AcCnt + 51)/2) + "," + (459-AcCnt) + ");";
+            else if(AcCnt >= 204) document.querySelector(cssSelector).style = "color:rgb(51," + (AcCnt - 153) + "," + (459-AcCnt) + ");";
+            else document.querySelector(cssSelector).style = "color:rgb(51,51," + (51 + AcCnt) + ");";
             break;
         }
     }
