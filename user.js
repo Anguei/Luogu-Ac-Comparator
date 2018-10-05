@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
-// @namespace    https://github.com/Anguei/Luogu-Ac-Comparator/
-// @version      1.3.2
+// @namespace    http://tampermonkey.net/
+// @version      1.3.1
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
