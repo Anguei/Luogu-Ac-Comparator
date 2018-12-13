@@ -9,23 +9,20 @@
 // ==/UserScript==
 
 const link = 'herf="/problem/show?pid=';
-function addLabel(id)
-{
+function addLabel(id) {
   $("#showAC").append(
-      ' ' +
-      '<a data-pjax ' + link + id + '">' + id + '</a>' +
-      ' ');
+    ' ' +
+    '<a target="_blank" ' + link + id + '">' + id + '</a>' +
+    ' ');
 }
 
-function addDiv()
-{
+function addDiv() {
   $(".lg-content-left")
-      .prepend('<div class="lg-article am-g" id="showAC"></div>');
+    .prepend('<div class="lg-article am-g" id="showAC"></div>');
   $("#showAC").append('<h2>你尚未 AC 以下题：</h2>');
 }
 
-function clearData(acs)
-{
+function clearData(acs) {
   var res = new Array();
   res.push(new Array());
   res.push(new Array());
@@ -33,8 +30,7 @@ function clearData(acs)
   for (var i = 1; i < acs.length; i++) // 把每一行非题号字符删掉（从 1 开始循环为了避开 split 之后产生的垃圾）
   {
     var tmpStr = "";
-    for (var j = 0; j < acs[i].length; j++)
-    {
+    for (var j = 0; j < acs[i].length; j++) {
       if (acs[i][j] != '"')                // 引号后面的不是题号部分字符
         tmpStr = tmpStr.concat(acs[i][j]); // 拼接字符串
       else
@@ -47,16 +43,14 @@ function clearData(acs)
   return res;
 }
 
-function extractData(content)
-{
+function extractData(content) {
   var acs = content.replace(/<span style=\"display:none\">\n.*?\n<\/span>/g, ''); // 把随机的干扰题号去除
   acs = acs.split('[<a data-pjax href="/problem/show?pid=');                      // 使用 split() 方法把通过的题目分割出来
   acs = clearData(acs);                                                           // 把分割好的数据清洁一下
   return acs;
 }
 
-function getAc(uid)
-{
+function getAc(uid) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', 'https://' + window.location.host + '/space/show?uid=' + uid, false);
   xhr.send(null);
@@ -67,23 +61,36 @@ function getAc(uid)
     return [];
 }
 
-function changeStyle(pid, meToo) {}  // AC 过的题目
-function changeStyle2(pid, meToo) {} // 尝试过的题目
-
-function displayTot(tot)
+function changeStyle(pid, meToo) // AC 过的题目
 {
+  var cssSelector = "a[href='/problem/show?pid=" + pid + "']";
+  // 由于洛谷使用随机页面结构，导致了一点小问题，所以要 querySelectorAll，防止染色失败
+  var elements = document.querySelectorAll(cssSelector);
+  for (var i = 0; i < elements.length; i++) {
+    elements[i].style.color = meToo ? "#008000" : "red";
+  }
+}
+
+function changeStyle2(pid, meToo) // 尝试过的题目
+{
+  var cssSelector = "a[href='/problem/show?pid=" + pid + "']";
+  var elements = document.querySelectorAll(cssSelector);
+  for (var i = 0; i < elements.length; i++) {
+    elements[i].style.color = meToo ? "#ff8c00" : "red";
+  }
+}
+
+function displayTot(tot) {
   var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div > h2";
   document.querySelector(cssSelector).style.fontSize = "18px"; // 避免在一些低分辨率显示器上一行显示不开
   document.querySelector(cssSelector).textContent = "通过题目（其中有 " + tot + " 道题你尚未 AC）";
 }
 
-function compare(hisAc, myAc, myAttempt)
-{
+function compare(hisAc, myAc, myAttempt) {
   var tot = hisAc.length; // 对方 AC 自己却没有 AC 的总数
-  for (var i = 0; i < hisAc.length; i++)
-  {
+  for (var i = 0; i < hisAc.length; i++) {
     var meToo = false; // 自己是否 AC 过
-    for (var j = 0; meToo && (j < myAc.length); j++)
+    for (var j = 0; !meToo && (j < myAc.length); j++)
       if (hisAc[i] == myAc[j]) // 也 AC 了
       {
         meToo = true;
@@ -92,8 +99,7 @@ function compare(hisAc, myAc, myAttempt)
 
     changeStyle(hisAc[i], meToo);
 
-    if (!meToo)
-    {
+    if (!meToo) {
       addLabel(hisAc[i]);
       for (var j2 = 0; j2 < myAttempt.length; j2++) // 变量名为 j2 为了避免傻逼油猴的警告
       {
@@ -109,8 +115,7 @@ function compare(hisAc, myAc, myAttempt)
   displayTot(tot); // 显示未 AC 总数
 }
 
-function changeAcColor(cssSelector, AcCnt)
-{
+function changeAcColor(cssSelector, AcCnt) {
   if (AcCnt >= 1275)
     document.querySelector(cssSelector).style = "color:#FF0000;";
   else if (AcCnt >= 867)
@@ -127,8 +132,7 @@ function changeAcColor(cssSelector, AcCnt)
     document.querySelector(cssSelector).style = "color:rgb(51,51," + (51 + AcCnt) + ");";
 }
 
-function displayAcCnt(AcCnt)
-{
+function displayAcCnt(AcCnt) {
   for (var i = 2; i <= 3; i++) // 解决页面结构不稳定导致的 AC 数无法正常显示问题
   {
     var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(" + i + ") > ul > li:nth-child(2) > span.lg-bignum-num";
@@ -140,8 +144,7 @@ function displayAcCnt(AcCnt)
   }
 }
 
-function work()
-{
+function work() {
   var myAc = getAc(myUid);
   var hisAc = getAc(hisUid);
   if (hisAc[0].length > 0) // 对方没开完全隐私保护
