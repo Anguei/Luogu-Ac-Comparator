@@ -146,13 +146,9 @@ function displayAcCnt(AcCnt) {
 
 function work() {
   var myAc = getAc(myUid);
-  var hisAc = getAc(hisUid);
-  if (hisAc[0].length > 0) // 对方没开完全隐私保护
-  {
-    addDiv();
-    compare(hisAc[0], myAc[0], myAc[1]);
-    displayAcCnt(hisAc[0].length);
-  }
+  addDiv();
+  compare(hisAc[0], myAc[0], myAc[1]);
+  displayAcCnt(hisAc[0].length);
 }
 
 const myUid = document.getElementsByClassName("am-topbar-brand")[0].attributes["myuid"].value;
@@ -166,7 +162,8 @@ function mainProcess() {
   }
 }
 
-if (myUid != '') {
+var hisAc = getAc(hisUid);
+if (myUid != '' && hisAc[0].length > 0) {
   $(".lg-summary-content")
     .append('<p>'
       + '<a href="javascript: ;" '
