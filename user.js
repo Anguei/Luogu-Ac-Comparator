@@ -166,13 +166,15 @@ function mainProcess() {
   }
 }
 
-$(".lg-summary-content")
-  .append('<p>'
-    + '<a href="javascript: ;" '
-    + 'id="showACBtn" '
-    + 'target="_blank" class="am-btn am-btn-sm am-btn-primary">'
-    + '显示你尚未 AC 的题'
-    + '</a>'
-    + '</p>');
+if (myUid != '') {
+  $(".lg-summary-content")
+    .append('<p>'
+      + '<a href="javascript: ;" '
+      + 'id="showACBtn" '
+      + 'target="_blank" class="am-btn am-btn-sm am-btn-primary">'
+      + '显示你尚未 AC 的题'
+      + '</a>'
+      + '</p>');
 
-$("#showACBtn").click(mainProcess);
+  $("#showACBtn").click(mainProcess);
+}
