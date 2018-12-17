@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器
-// @namespace    http://tampermonkey.net/
+// @namespace    https://callg.cf/
 // @version      1.3.3
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       callG (forked from yyfcpp)
@@ -8,11 +8,10 @@
 // @grant        none
 // ==/UserScript==
 
-const link = 'herf="/problem/show?pid=';
 function addLabel(id) {
   $("#showAC").append(
     ' ' +
-    '<a target="_blank" ' + link + id + '">' + id + '</a>' +
+    '<a href="/problem/show?pid=' + id + '">' + id + '</a>' +
     ' ');
 }
 
@@ -37,8 +36,7 @@ function clearData(acs) {
         break;
     }
     res[g].push(tmpStr);
-    if (acs[i].length > 50) // 这是最后一个题目 / 下一个是「尝试过的题目」
-      g++;
+    if (acs[i].length > 50) g++; // 这是最后一个题目 / 下一个是「尝试过的题目」
   }
   return res;
 }
@@ -91,19 +89,15 @@ function compare(hisAc, myAc, myAttempt) {
   for (var i = 0; i < hisAc.length; i++) {
     var meToo = false; // 自己是否 AC 过
     for (var j = 0; !meToo && (j < myAc.length); j++)
-      if (hisAc[i] == myAc[j]) // 也 AC 了
-      {
-        meToo = true;
-        tot--;
-      }
+      if (hisAc[i] == myAc[j]) // 也 AC 了      
+        meToo = true, tot--;
 
     changeStyle(hisAc[i], meToo);
 
     if (!meToo) {
       addLabel(hisAc[i]);
-      for (var j2 = 0; j2 < myAttempt.length; j2++) // 变量名为 j2 为了避免傻逼油猴的警告
-      {
-        if (hisAc[i] == myAttempt[j2]) // 没有 AC 却尝试过
+      for (var j = 0; j < myAttempt.length; j++) {
+        if (hisAc[i] == myAttempt[j]) // 没有 AC 却尝试过
         {
           meToo = true;
           break;
@@ -154,16 +148,8 @@ function work() {
 const myUid = document.getElementsByClassName("am-topbar-brand")[0].attributes["myuid"].value;
 const hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4);
 
-function mainProcess() {
-  if (myUid != hisUid) work();
-  else {
-    var myAcCnt = getAc(myUid)[0].length;
-    displayAcCnt(myAcCnt);
-  }
-}
-
 var hisAc = getAc(hisUid);
-if (myUid != '' && hisAc[0].length > 0) {
+if (myUid != '' && myUid != hisUid && hisAc[0].length > 0) {
   $(".lg-summary-content")
     .append('<p>'
       + '<a href="javascript: ;" '
@@ -173,5 +159,5 @@ if (myUid != '' && hisAc[0].length > 0) {
       + '</a>'
       + '</p>');
 
-  $("#showACBtn").click(mainProcess);
+  $("#showACBtn").click(work);
 }
