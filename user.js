@@ -80,8 +80,9 @@ function changeStyle2(pid, meToo) // 尝试过的题目
 
 function displayTot(tot) {
   var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div > h2";
-  document.querySelector(cssSelector).style.fontSize = "18px"; // 避免在一些低分辨率显示器上一行显示不开
-  document.querySelector(cssSelector).textContent = "通过题目（其中有 " + tot + " 道题你尚未 AC）";
+  // Uncaught TypeError: Cannot read property 'style' of null
+  // document.querySelector(cssSelector).style.fontSize = "18px"; // 避免在一些低分辨率显示器上一行显示不开
+  // document.querySelector(cssSelector).textContent = "通过题目（其中有 " + tot + " 道题你尚未 AC）";
 }
 
 function compare(hisAc, myAc, myAttempt) {
@@ -139,25 +140,31 @@ function displayAcCnt(AcCnt) {
 }
 
 function work() {
-  var myAc = getAc(myUid);
+  hisAc = getAc(hisUid);
+  myAc = getAc(myUid);
   addDiv();
   compare(hisAc[0], myAc[0], myAc[1]);
   displayAcCnt(hisAc[0].length);
 }
 
-const myUid = document.getElementsByClassName("am-topbar-brand")[0].attributes["myuid"].value;
-const hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4);
+var myUid, hisUid, hisAc, myAc;
 
-var hisAc = getAc(hisUid);
-if (myUid != '' && myUid != hisUid && hisAc[0].length > 0) {
-  $(".lg-summary-content")
-    .append('<p>'
-      + '<a href="javascript: ;" '
-      + 'id="showACBtn" '
-      + 'target="_blank" class="am-btn am-btn-sm am-btn-primary">'
-      + '显示你尚未 AC 的题'
-      + '</a>'
-      + '</p>');
-
-  $("#showACBtn").click(work);
+function ready() {
+  if ($(".avatar").attr("src") == null) return;
+  myUid = $(".avatar").attr("src").match(/[0-9]+/)[0];
+  hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4);
+  if (myUid != '' && myUid != hisUid) {
+    $("#showACBtn").remove(); work();
+  }
 }
+
+$(".lg-summary")
+  .append('<p>'
+    + '<a href="javascript: ;" '
+    + 'id="showACBtn" '
+    + 'target="_blank" class="am-btn am-btn-sm am-btn-primary">'
+    + '显示你尚未 AC 的题'
+    + '</a>'
+    + '</p>');
+
+$("#showACBtn").click(ready);
