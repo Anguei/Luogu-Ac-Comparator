@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.5.1
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -113,7 +113,7 @@ function compare_new(hisAc, myAc, myAttempt) {
             var mid = parseInt((l + r) / 2); // JavaScript 除法默认不是整数。。
             if (target == array[mid]) return true;
             else if (target > array[mid]) l = mid + 1;
-            else r = mid - 1;
+            else r = mid;
         }
         return false;
     }
