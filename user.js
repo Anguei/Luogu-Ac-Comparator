@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      1.3.2
+// @version      1.4
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -133,7 +133,7 @@ function compare(hisAc, myAc, myAttempt)
         }
 
     }
-    displayTot(tot); // 显示未 AC 总数
+    // displayTot(tot); // 显示未 AC 总数（有压迫感，删掉这个功能）
 }
 
 
@@ -152,7 +152,8 @@ function displayAcCnt(AcCnt)
 {
     for (var i = 2; i <= 3; i++) // 解决页面结构不稳定导致的 AC 数无法正常显示问题
     {
-        var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(" + i + ") > ul > li:nth-child(2) > span.lg-bignum-num";
+        // var cssSelector = "body > div.am-cf.lg-main > div.lg-content > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(" + i + ") > ul > li:nth-child(2) > span.lg-bignum-num";
+        var cssSelector = "#app-body-new > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(" + i + ") > ul > li:nth-child(2) > span.lg-bignum-num"; // 适配新的洛谷 UI
         if (document.querySelector(cssSelector) != null) // 确定了 AC 数的选择器
         {
             document.querySelector(cssSelector).textContent = AcCnt; // 更新 AC 数
@@ -171,6 +172,7 @@ function work()
     if (hisAc[0].length > 0) // 对方没开完全隐私保护
     {
         compare(hisAc[0], myAc[0], myAc[1]);
+        console.log('compared');
         displayAcCnt(hisAc[0].length);
     }
     else
@@ -180,7 +182,8 @@ function work()
 }
 
 
-var myUid = document.getElementsByClassName("am-topbar-brand")[0].attributes["myuid"].value; // 获取当前登录账号的 uid
+// var myUid = document.getElementsByClassName("am-topbar-brand")[0].attributes["myuid"].value; // 获取当前登录账号的 uid
+var myUid = document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'].value.match(/[0-9]+/)[0] // 获取当前登录账号的 uid（洛谷前端改版后）
 var nowUrl = window.location.href; // 获取当前所在个人主页的 URL
 var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 获取当前所在个人空间主人的 UID
 
