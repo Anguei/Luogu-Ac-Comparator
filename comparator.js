@@ -1,19 +1,19 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      1.5.1
+// @version      2.0
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
-// @grant        none
+// @grant        GM_setValue
+// @grant        GM_getValue
 // ==/UserScript==
 
 
 
 // 几个开关，可根据用户喜好自行定义
-var totDisplaying = false; // 是否显示比较后的未 AC 总数（待完成）
-var colorChanging = false; // 是否根据该用户 AC 总数显示 AC 总数的颜色
-var onlyExact = false; // 是否只显示精确 AC 总数而不进行题目详细比较
+var settings = {};
+var colored = 0;
 
 
 function getAc(uid) {
@@ -70,15 +70,19 @@ function compare_new(hisAc, myAc, myAttempt) {
             meToo = true;
             tot--;
         }
-        changeStyle(hisAc[i], meToo); // 改变题号颜色
+        if (++colored <= settings['limOfColoring']) { // 如果尚未超过阈值
+            changeStyle(hisAc[i], meToo); // 改变题号颜色
+        }
         if (!meToo) { // 没 AC 过，有没有尝试过？
             if (binarySerach(hisAc[i], myAttempt)) {
                 meToo = true;
             }
-            changeStyle2(hisAc[i], meToo);
+            if (colored <= settings['limOfColoring']) {
+                changeStyle2(hisAc[i], meToo);
+            }
         }
     }
-    if (totDisplaying) { // 如果打开显示未 AC 总数的开关
+    if (settings['totDisplaying']) { // 如果打开显示未 AC 总数的开关
         displayTot(tot); // 显示 AC 总数
     }
 
@@ -124,8 +128,8 @@ function displayAcCnt(AcCnt) {
     for (var i = 2; i <= 3; i++) { // 解决页面结构不稳定导致的 AC 数无法正常显示问题
         var cssSelector = "#app-body-new > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(" + i + ") > ul > li:nth-child(2) > span.lg-bignum-num"; // 适配新的洛谷 UI
         if (document.querySelector(cssSelector) != null) { // 确定了 AC 数的选择器
-            document.querySelector(cssSelector).textContent = AcCnt; // 更新 AC 数
-            if (colorChanging) { // 如果打开颜色变化的开关
+            document.querySelector(cssSelector).innerHTML = AcCnt + '<small></small>'; // 更新 AC 数
+            if (settings['colorChanging']) { // 如果打开颜色变化的开关
                 changeAcColor(cssSelector, AcCnt);
             }
             break;
@@ -150,11 +154,9 @@ function work() {
     // console.log(myAc);
     // console.log(hisAc);
     if (hisAc[0].length > 0) { // 对方没开完全隐私保护
-        if (!onlyExact) {
-            var start = new Date();
-            compare_new(hisAc[0], myAc[0], myAc[1]);
-            console.log('比较耗时：' + (new Date() - start) + 'ms');
-        }
+        var start = new Date();
+        compare_new(hisAc[0], myAc[0], myAc[1]);
+        console.log('比较耗时：' + (new Date() - start) + 'ms');
         displayAcCnt(hisAc[0].length);
     } else {
         console.log("对方开启了完全隐私保护，无法比较。");
@@ -162,10 +164,32 @@ function work() {
 }
 
 
+function setSettings() {
+    alert('首次运行新版比较器，请进行初步设置');
+    settings['limOfColoring'] = prompt('请设置红橙绿染色的题目上限（染色量太大会降低页面加载速度）（-1 表示不限量）')
+    settings['totDisplaying'] = confirm('是否显示对方 AC 而您却未 AC 的题目总数？');
+    settings['colorChanging'] = confirm('是否根据用户 AC 数量显示 AC 数不同颜色？');
+    settings['repairAcCount'] = confirm('是否实时更新 AC 数并把一千以上的 AC 数转化为精准数字？\n解释：洛谷个人空间的 AC 数非实时更新，开启该功能可实现实时更新');
+    if (settings['limOfColoring'] == '-1') {
+        settings['limOfColoring'] = '99999';
+    }
+    GM_setValue('CompSettings', settings);
+    alert('设置成功，您可以随时在自己的个人空间点击「更改」按钮修改设置。')
+}
+
+
+settings = GM_getValue('CompSettings');
+if (settings == undefined || settings == 'undefined') {
+    setSettings();
+}
+
+$('#app-body-new > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > p').append('<button class="am-btn am-btn-sm am-btn-primary" id="changeComp">更改</button>')
+$('#changeComp').click(setSettings);
+
 var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 获取当前所在个人空间主人的 UID
 if (document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'] == undefined) { // 在自己的个人主页
     var myAcCnt = getAc(hisUid)[0].length;
-    displayAcCnt(myAcCnt);
+    if (settings['repairAcCnt']) displayAcCnt(myAcCnt);
 } else { // 在别人的主页
     var myUid = document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'].value.match(/[0-9]+/)[0] // 获取当前登录账号的 uid（洛谷前端改版后）
     work();
