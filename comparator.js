@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      2.1
+// @version      2.1.1
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -175,7 +175,7 @@ function setSettings() {
         settings['limOfColoring'] = '99999';
     }
     GM_setValue('CompSettings', settings);
-    alert('设置成功，您可以随时在自己的个人空间点击「更改」按钮修改设置。')
+    alert('设置成功，您可以随时在任意用户的个人空间点击「更改」按钮修改设置。')
 }
 
 
