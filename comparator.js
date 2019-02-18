@@ -26,7 +26,7 @@ function getAc(uid) {
         return extractData(xhr.responseText); // 返回 AC 列表
     } else {
         return []; // 空列表
-    }
+    } 
 
     function extractData(content) {
         // 如果你有一个问题打算用正则表达式来解决，那么就是两个问题了。
