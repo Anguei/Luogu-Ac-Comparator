@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      2.1
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -166,6 +166,7 @@ function work() {
 
 function setSettings() {
     alert('首次运行新版比较器，请进行初步设置');
+    settings = {};
     settings['limOfColoring'] = prompt('请设置红橙绿染色的题目上限（染色量太大会降低页面加载速度）（-1 表示不限量）')
     settings['totDisplaying'] = confirm('是否显示对方 AC 而您却未 AC 的题目总数？');
     settings['colorChanging'] = confirm('是否根据用户 AC 数量显示 AC 数不同颜色？');
