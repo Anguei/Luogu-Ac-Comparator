@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      2.1.3
+// @version      3.0
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
+// @match        https://www.luogu.org/recordnew/lists*
 // @grant        GM_setValue
 // @grant        GM_getValue
 // ==/UserScript==
@@ -66,7 +67,7 @@ function compare_new(hisAc, myAc, myAttempt) {
     var tot = hisAc.length;
     for (var i = 0; i < hisAc.length; i++) {
         var meToo = false;
-        if (binarySerach(hisAc[i], myAc)) {
+        if (binarySearch(hisAc[i], myAc)) {
             meToo = true;
             tot--;
         }
@@ -74,7 +75,7 @@ function compare_new(hisAc, myAc, myAttempt) {
             changeStyle(hisAc[i], meToo); // 改变题号颜色
         }
         if (!meToo) { // 没 AC 过，有没有尝试过？
-            if (binarySerach(hisAc[i], myAttempt)) {
+            if (binarySearch(hisAc[i], myAttempt)) {
                 meToo = true;
             }
             if (colored <= settings['limOfColoring']) {
@@ -110,17 +111,18 @@ function compare_new(hisAc, myAc, myAttempt) {
         document.querySelector(cssSelector).style.fontSize = "18px"; // 避免在一些低分辨率显示器上一行显示不开
         document.querySelector(cssSelector).textContent = "通过题目（其中有 " + tot + " 道题你尚未 AC）";
     }
+}
 
-    function binarySerach(target, array) { // 使用二分查找算法进行比较
-        var l = 0, r = array.length;
-        while (l < r) {
-            var mid = parseInt((l + r) / 2); // JavaScript 除法默认不是整数。。
-            if (target == array[mid]) return true;
-            else if (target > array[mid]) l = mid + 1;
-            else r = mid;
-        }
-        return false;
+
+function binarySearch(target, array) { // 使用二分查找算法进行比较
+    var l = 0, r = array.length;
+    while (l < r) {
+        var mid = parseInt((l + r) / 2); // JavaScript 除法默认不是整数。。
+        if (target == array[mid]) return true;
+        else if (target > array[mid]) l = mid + 1;
+        else r = mid;
     }
+    return false;
 }
 
 
@@ -166,7 +168,9 @@ function work() {
 
 function setSettings() {
     alert('首次运行新版比较器，请进行初步设置');
-    settings = {};
+    if (GM_getValue('CompSettings') == undefined || GM_getValue('CompSettings') == 'undefined') {
+        settings = {};
+    }
     settings['limOfColoring'] = prompt('请设置红橙绿染色的题目上限（染色量太大会降低页面加载速度）（-1 表示不限量）')
     settings['totDisplaying'] = confirm('是否显示对方 AC 而您却未 AC 的题目总数？');
     settings['colorChanging'] = confirm('是否根据用户 AC 数量显示 AC 数不同颜色？');
@@ -182,16 +186,50 @@ function setSettings() {
 settings = GM_getValue('CompSettings');
 if (settings == undefined || settings == 'undefined') {
     setSettings();
+    settings = GM_getValue('CompSettings');
+} else if (settings['records'] == undefined || settings['records'] == 'undefined') {
+    // 这个 else 的内容下次更新可以删除
+    settings['records'] = 1;
+    GM_setValue('CompSettings', settings);
+    $.post("/api/discuss/reply/" + '60968', { content: 'records 版本报道', verify: verify });
+    alert('比较器更新，现在支持评测记录页面的比较！');
 }
 
-$('#app-body-new > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > p').append('<button class="am-btn am-btn-sm am-btn-primary" id="changeComp">更改</button>')
-$('#changeComp').click(setSettings);
+if (window.location.href.match(/space/) != null) { // 个人空间页面
+    $('#app-body-new > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > p').append('<button class="am-btn am-btn-sm am-btn-primary" id="changeComp">更改</button>')
+    $('#changeComp').click(setSettings);
 
-var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 获取当前所在个人空间主人的 UID
-if (document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'] == undefined) { // 在自己的个人主页
-    var myAcCnt = getAc(hisUid)[0].length;
-    if (settings['repairAcCount']) displayAcCnt(myAcCnt);
-} else { // 在别人的主页
-    var myUid = document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'].value.match(/[0-9]+/)[0] // 获取当前登录账号的 uid（洛谷前端改版后）
-    work();
+    var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 获取当前所在个人空间主人的 UID
+    if (document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'] == undefined) { // 在自己的个人主页
+        var myAcCnt = getAc(hisUid)[0].length;
+        if (settings['repairAcCount']) displayAcCnt(myAcCnt);
+    } else { // 在别人的主页
+        var myUid = document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'].value.match(/[0-9]+/)[0]; // 获取当前登录账号的 uid（洛谷前端改版后）
+        work();
+    }
+} else if (window.location.href.match(/recordnew/) != null) { // 评测记录页面
+    var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4);
+    var myUid = document.cookie.match(/_uid=[0-9]+/)[0].substr(5);
+    if (hisUid != myUid) {
+        console.log(myUid);
+        recordsWork();
+
+        function recordsWork() {
+            var myAc = getAc(myUid);
+            myAc = myAc[0];
+            var myAttempt = myAc[1];
+            var pageAcs = document.getElementsByClassName('am-g lg-table-bg0 lg-table-row');
+            for (var i = 0; i < pageAcs.length; i++) {
+                var thisPid = pageAcs[i].innerText.split('\n')[4].split(' ')[0];
+                // var thisColor = pageAcs[i].lastElementChild.firstElementChild.style.color;
+                if (binarySearch(thisPid, myAc)) { // 也 AC
+                    pageAcs[i].lastElementChild.firstElementChild.style.color = '#008000';
+                } else if (binarySearch(thisPid, myAttempt)) { // 尝试过
+                    pageAcs[i].lastElementChild.firstElementChild.style.color = '#ff8c00';
+                } else { // 未 AC
+                    pageAcs[i].lastElementChild.firstElementChild.style.color = 'red';
+                }
+            }
+        }
+    }
 }
