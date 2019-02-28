@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      3.0
+// @version      3.1
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -216,8 +216,11 @@ if (window.location.href.match(/space/) != null) { // 个人空间页面
 
         function recordsWork() {
             var myAc = getAc(myUid);
-            myAc = myAc[0];
             var myAttempt = myAc[1];
+            myAc = myAc[0];
+            myAc.sort();
+            myAttempt.sort();
+
             var pageAcs = document.getElementsByClassName('am-g lg-table-bg0 lg-table-row');
             for (var i = 0; i < pageAcs.length; i++) {
                 var thisPid = pageAcs[i].innerText.split('\n')[4].split(' ')[0];
