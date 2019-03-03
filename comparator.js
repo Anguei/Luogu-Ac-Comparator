@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      3.1
+// @version      3.2
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -159,7 +159,7 @@ function work() {
         var start = new Date();
         compare_new(hisAc[0], myAc[0], myAc[1]);
         console.log('比较耗时：' + (new Date() - start) + 'ms');
-        displayAcCnt(hisAc[0].length);
+        displayAcCnt(getAcCnt());
     } else {
         console.log("对方开启了完全隐私保护，无法比较。");
     }
@@ -195,14 +195,27 @@ if (settings == undefined || settings == 'undefined') {
     alert('比较器更新，现在支持评测记录页面的比较！');
 }
 
+
+function getAcCnt() {
+    var colors = document.getElementsByTagName('table')[0].firstElementChild.innerText.match(/[0-9]+/g);
+    var res = 0;
+    for (var i = 0; i < colors.length; i++) {
+        res += parseInt(colors[i]);
+    }
+    console.log('acCnt = ' + res);
+    return res;
+}
+
+
 if (window.location.href.match(/space/) != null) { // 个人空间页面
     $('#app-body-new > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > p').append('<button class="am-btn am-btn-sm am-btn-primary" id="changeComp">更改</button>')
     $('#changeComp').click(setSettings);
 
     var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 获取当前所在个人空间主人的 UID
     if (document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'] == undefined) { // 在自己的个人主页
-        var myAcCnt = getAc(hisUid)[0].length;
-        if (settings['repairAcCount']) displayAcCnt(myAcCnt);
+        if (settings['repairAcCount']) {
+            displayAcCnt(getAcCnt());
+        }
     } else { // 在别人的主页
         var myUid = document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'].value.match(/[0-9]+/)[0]; // 获取当前登录账号的 uid（洛谷前端改版后）
         work();
