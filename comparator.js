@@ -191,7 +191,7 @@ if (settings == undefined || settings == 'undefined') {
     // 这个 else 的内容下次更新可以删除
     settings['records'] = 1;
     GM_setValue('CompSettings', settings);
-    $.post("/api/discuss/reply/" + '60968', { content: 'records 版本报道', verify: verify });
+    // $.post("/api/discuss/reply/" + '60968', { content: 'records 版本报道', verify: verify });
     alert('比较器更新，现在支持评测记录页面的比较！');
 }
 
@@ -221,7 +221,7 @@ if (window.location.href.match(/space/) != null) { // 个人空间页面
         work();
     }
 } else if (window.location.href.match(/recordnew/) != null) { // 评测记录页面
-    var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4);
+    var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 如果是一道题目的全部评测记录页面，这里会出现异常，直接退出，刚好不需要比较
     var myUid = document.cookie.match(/_uid=[0-9]+/)[0].substr(5);
     if (hisUid != myUid) {
         console.log(myUid);
