@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      3.21
+// @version      3.3
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -221,7 +221,12 @@ if (window.location.href.match(/space/) != null) { // 个人空间页面
         work();
     }
 } else if (window.location.href.match(/recordnew/) != null) { // 评测记录页面
-    var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 如果是一道题目的全部评测记录页面，这里会出现异常，直接退出，刚好不需要比较
+    var hisUidOrName = window.location.href.match(/uid=*/)[0].substr(4); // 如果是一道题目的全部评测记录页面，这里会出现异常，直接退出，刚好不需要比较
+    var hisUid = '';
+    $.get("/space/ajax_getuid?username=" + hisUidOrName, // 把用户名转化为 uid
+        function (data) {
+            hiaUid = eval('(' + data + ')')['more']['uid'];
+        });
     var myUid = document.cookie.match(/_uid=[0-9]+/)[0].substr(5);
     if (hisUid != myUid) {
         console.log(myUid);
