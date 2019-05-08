@@ -225,7 +225,7 @@ if (window.location.href.match(/space/) != null) { // 个人空间页面
     var hisUid = '';
     $.get("/space/ajax_getuid?username=" + hisUidOrName, // 把用户名转化为 uid
         function (data) {
-            hiaUid = eval('(' + data + ')')['more']['uid'];
+            hisUid = eval('(' + data + ')')['more']['uid'];
         });
     var myUid = document.cookie.match(/_uid=[0-9]+/)[0].substr(5);
     if (hisUid != myUid) {
