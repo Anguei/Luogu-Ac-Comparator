@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      3.23
+// @version      3.24
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -16,11 +16,12 @@
 var settings = {};
 var colored = 0;
 
+//alert(document.body.innerHTML.match('uid=([0-9]+)')[0]);
+// console.log(document.body.innerHTML);
 var myUid = GM_getValue("myUid");
 if (myUid == undefined || myUid == 'undefined')
-    myUid = prompt("比较器脚本更新，请正确输入您的 uid（数字）以保障插件正常运行");
+    myUid = prompt("任务计划脚本更新，请正确输入您的 uid（数字）以保障插件正常运行");
 GM_setValue("myUid", myUid);
-
 
 
 function getAc(uid) {
@@ -39,7 +40,7 @@ function getAc(uid) {
         // 如果你有一个问题打算用正则表达式来解决，那么就是两个问题了。
         // 所以窝还是用 split() 解决这一个问题吧！
         var acs = content.replace(/<span style=\"display:none\">\n.*?\n<\/span>/g, ''); // 把随机的干扰题号去除
-        acs = acs.split('[<a data-pjax href="/problem/show?pid='); // 使用 split() 方法把通过的题目分割出来
+        acs = acs.split('[<a data-pjax href="/problemnew/show/'); // 使用 split() 方法把通过的题目分割出来
         acs = clearData(acs); // 把分割好的数据清洁一下
         return acs;
 
@@ -95,7 +96,7 @@ function compare_new(hisAc, myAc, myAttempt) {
 
     function changeStyle(pid, meToo) // AC 过的题目
     {
-        var cssSelector = "a[href='/problem/show?pid=" + pid + "']";
+        var cssSelector = "a[href='/problemnew/show/" + pid + "']";
         // 由于洛谷使用随机页面结构，导致了一点小问题，所以要 querySelectorAll，防止染色失败
         var elements = document.querySelectorAll(cssSelector);
         for (var i = 0; i < elements.length; i++) {
@@ -105,7 +106,7 @@ function compare_new(hisAc, myAc, myAttempt) {
 
     function changeStyle2(pid, meToo) // 尝试过的题目
     {
-        var cssSelector = "a[href='/problem/show?pid=" + pid + "']";
+        var cssSelector = "a[href='/problemnew/show/" + pid + "']";
         var elements = document.querySelectorAll(cssSelector);
         for (var i = 0; i < elements.length; i++) {
             elements[i].style.color = meToo ? "#ff8c00" : "red";
@@ -208,7 +209,7 @@ function getAcCnt() {
     for (var i = 0; i < colors.length; i++) {
         res += parseInt(colors[i]);
     }
-    console.log('acCnt = ' + res);
+    // console.log('acCnt = ' + res);
     return res;
 }
 
@@ -224,7 +225,7 @@ if (window.location.href.match(/space/) != null) { // 个人空间页面
         }
     } else { // 在别人的主页
         // var myUid = document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'].value.match(/[0-9]+/)[0]; // 获取当前登录账号的 uid（洛谷前端改版后）
-        var myUid = GM_getValue("myUid");
+        var myUid = GM_setValue("myUid");
         work();
     }
 } else if (window.location.href.match(/recordnew/) != null) { // 评测记录页面
@@ -232,12 +233,11 @@ if (window.location.href.match(/space/) != null) { // 个人空间页面
     var hisUid = '';
     $.get("/space/ajax_getuid?username=" + hisUidOrName, // 把用户名转化为 uid
         function (data) {
-            hiaUid = eval('(' + data + ')')['more']['uid'];
+            hisUid = eval('(' + data + ')')['more']['uid'];
         });
-    // var myUid = document.cookie.match(/_uid=[0-9]+/)[0].substr(5);
     var myUid = GM_getValue("myUid");
     if (hisUid != myUid) {
-        console.log(myUid);
+        // console.log(myUid);
         recordsWork();
 
         function recordsWork() {
