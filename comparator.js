@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      3.22
+// @version      3.23
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -15,6 +15,12 @@
 // 几个开关，可根据用户喜好自行定义
 var settings = {};
 var colored = 0;
+
+var myUid = GM_getValue("myUid");
+if (myUid == undefined || myUid == 'undefined')
+    myUid = prompt("比较器脚本更新，请正确输入您的 uid（数字）以保障插件正常运行");
+GM_setValue("myUid", myUid);
+
 
 
 function getAc(uid) {
@@ -217,7 +223,8 @@ if (window.location.href.match(/space/) != null) { // 个人空间页面
             displayAcCnt(getAcCnt());
         }
     } else { // 在别人的主页
-        var myUid = document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'].value.match(/[0-9]+/)[0]; // 获取当前登录账号的 uid（洛谷前端改版后）
+        // var myUid = document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'].value.match(/[0-9]+/)[0]; // 获取当前登录账号的 uid（洛谷前端改版后）
+        var myUid = GM_getValue("myUid");
         work();
     }
 } else if (window.location.href.match(/recordnew/) != null) { // 评测记录页面
@@ -227,7 +234,8 @@ if (window.location.href.match(/space/) != null) { // 个人空间页面
         function (data) {
             hiaUid = eval('(' + data + ')')['more']['uid'];
         });
-    var myUid = document.cookie.match(/_uid=[0-9]+/)[0].substr(5);
+    // var myUid = document.cookie.match(/_uid=[0-9]+/)[0].substr(5);
+    var myUid = GM_getValue("myUid");
     if (hisUid != myUid) {
         console.log(myUid);
         recordsWork();
