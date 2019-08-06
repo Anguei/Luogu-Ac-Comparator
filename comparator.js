@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      3.24.1
+// @version      3.25
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -114,7 +114,7 @@ function compare_new(hisAc, myAc, myAttempt) {
     }
 
     function displayTot(tot) {
-        var cssSelector = "#app-body-new > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div:nth-child(2) > h2";
+        var cssSelector = "#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div:nth-child(3) > h2";
         document.querySelector(cssSelector).style.fontSize = "18px"; // 避免在一些低分辨率显示器上一行显示不开
         document.querySelector(cssSelector).textContent = "通过题目（其中有 " + tot + " 道题你尚未 AC）";
     }
@@ -135,7 +135,7 @@ function binarySearch(target, array) { // 使用二分查找算法进行比较
 
 function displayAcCnt(AcCnt) {
     for (var i = 2; i <= 3; i++) { // 解决页面结构不稳定导致的 AC 数无法正常显示问题
-        var cssSelector = "#app-body-new > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(" + i + ") > ul > li:nth-child(2) > span.lg-bignum-num"; // 适配新的洛谷 UI
+        var cssSelector = "#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(" + i + ") > ul > li:nth-child(2) > span.lg-bignum-num"; // 适配新的洛谷 UI
         if (document.querySelector(cssSelector) != null) { // 确定了 AC 数的选择器
             document.querySelector(cssSelector).innerHTML = AcCnt + '<small></small>'; // 更新 AC 数
             if (settings['colorChanging']) { // 如果打开颜色变化的开关
@@ -215,7 +215,7 @@ function getAcCnt() {
 
 
 if (window.location.href.match(/space/) != null) { // 个人空间页面
-    $('#app-body-new > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > p').append('<button class="am-btn am-btn-sm am-btn-primary" id="changeComp">更改</button>')
+    $('#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > p').append('<button class="am-btn am-btn-sm am-btn-primary" id="changeComp">更改</button>')
     $('#changeComp').click(setSettings);
 
     var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 获取当前所在个人空间主人的 UID
