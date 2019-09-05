@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      3.25
+// @version      3.26
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -115,6 +115,7 @@ function compare_new(hisAc, myAc, myAttempt) {
 
     function displayTot(tot) {
         var cssSelector = "#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div:nth-child(3) > h2";
+        if(getAchievementElement() != undefined) cssSelector = "#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div:nth-child(4) > h2";// 有“成就”标签
         document.querySelector(cssSelector).style.fontSize = "18px"; // 避免在一些低分辨率显示器上一行显示不开
         document.querySelector(cssSelector).textContent = "通过题目（其中有 " + tot + " 道题你尚未 AC）";
     }
@@ -202,9 +203,32 @@ if (settings == undefined || settings == 'undefined') {
     alert('比较器更新，现在支持评测记录页面的比较！');
 }
 
+function getAchievementElement() { //查找“成就”标签
+    var elements=$('#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > .lg-article');
+    for (var i = 0; i < elements.length; i++) {
+        if(elements[i].innerText.indexOf("成就")!=-1)return elements[i];
+    }
+    return undefined;
+}
+
+function getStatElement() {//查找“难易度统计”标签
+    var elements=$('#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > .lg-article');
+    for (var i = 0; i < elements.length; i++) {
+        if(elements[i].innerText.indexOf("难易度统计")!=-1)return elements[i];
+    }
+    return undefined;
+}
+
+function getAcceptedElement() {//查找“通过题目”标签
+    var elements=$('#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > .lg-article');
+    for (var i = 0; i < elements.length; i++) {
+        if(elements[i].innerText.indexOf("通过题目")!=-1)return elements[i];
+    }
+    return undefined;
+}
 
 function getAcCnt() {
-    var colors = document.getElementsByTagName('table')[0].firstElementChild.innerText.match(/[0-9]+/g);
+    var colors = getStatElement().innerText.match(/[0-9]+/g);
     var res = 0;
     for (var i = 0; i < colors.length; i++) {
         res += parseInt(colors[i]);
