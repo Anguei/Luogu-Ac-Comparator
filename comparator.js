@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      3.26
+// @version      3.27
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -39,7 +39,7 @@ function getAc(uid) {
     function extractData(content) {
         // 如果你有一个问题打算用正则表达式来解决，那么就是两个问题了。
         // 所以窝还是用 split() 解决这一个问题吧！
-        var acs = content.replace(/<span style=\"display:none\">\n.*?\n<\/span>/g, ''); // 把随机的干扰题号去除
+        var acs = content.replace(/<span style=\"display:none\">\s*.*?\s*<\/span>/g, ''); // 把随机的干扰题号去除
         acs = acs.split('[<a data-pjax href="/problemnew/show/'); // 使用 split() 方法把通过的题目分割出来
         acs = clearData(acs); // 把分割好的数据清洁一下
         return acs;
@@ -58,7 +58,7 @@ function getAc(uid) {
                     else break;
                 }
                 res[g].push(tmpStr);
-                if (acs[i].length > 50) { // 这是最后一个题目 / 下一个是「尝试过的题目」
+                if (acs[i].trim().length > 50) { // 这是最后一个题目 / 下一个是「尝试过的题目」
                     g++;
                 }
             }
