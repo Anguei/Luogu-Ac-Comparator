@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      3.27
+// @version      3.28
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -195,12 +195,6 @@ settings = GM_getValue('CompSettings');
 if (settings == undefined || settings == 'undefined') {
     setSettings();
     settings = GM_getValue('CompSettings');
-} else if (settings['records'] == undefined || settings['records'] == 'undefined') {
-    // 这个 else 的内容下次更新可以删除
-    settings['records'] = 1;
-    GM_setValue('CompSettings', settings);
-    // $.post("/api/discuss/reply/" + '60968', { content: 'records 版本报道', verify: verify });
-    alert('比较器更新，现在支持评测记录页面的比较！');
 }
 
 function getAchievementElement() { //查找“成就”标签
@@ -243,7 +237,7 @@ if (window.location.href.match(/space/) != null) { // 个人空间页面
     $('#changeComp').click(setSettings);
 
     var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 获取当前所在个人空间主人的 UID
-    if (document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'] == undefined) { // 在自己的个人主页
+    if (hisUid == GM_getValue("myUid")) { // 在自己的个人主页
         if (settings['repairAcCount']) {
             displayAcCnt(getAcCnt());
         }
