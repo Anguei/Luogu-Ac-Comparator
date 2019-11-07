@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      3.28
+// @version      4.0
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
 // @match        https://www.luogu.org/space/*
@@ -27,7 +27,7 @@ GM_setValue("myUid", myUid);
 function getAc(uid) {
     // 向指定的个人空间发送 get 请求，获取 AC 列表
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://' + window.location.host + '/space/show?uid=' + uid, false);
+    xhr.open('GET', 'https://' + window.location.host + '/user/' + uid, false);
     xhr.send(null);
     console.log('got ' + uid + "'s AC list: " + xhr.status);
     if (xhr.status == 200) {
@@ -96,21 +96,15 @@ function compare_new(hisAc, myAc, myAttempt) {
 
     function changeStyle(pid, meToo) // AC 过的题目
     {
-        var cssSelector = "a[href='/problemnew/show/" + pid + "']";
-        // 由于洛谷使用随机页面结构，导致了一点小问题，所以要 querySelectorAll，防止染色失败
-        var elements = document.querySelectorAll(cssSelector);
-        for (var i = 0; i < elements.length; i++) {
-            elements[i].style.color = meToo ? "#008000" : "red";
-        }
+        // 直接插入style节点
+        var style = document.createElement("style");style.innerHTML="a[href='/problem/" + pid + "']{color:" + meToo ? "#008000" : "red" + " !important;}";
+        document.body.append(style);
     }
 
     function changeStyle2(pid, meToo) // 尝试过的题目
     {
-        var cssSelector = "a[href='/problemnew/show/" + pid + "']";
-        var elements = document.querySelectorAll(cssSelector);
-        for (var i = 0; i < elements.length; i++) {
-            elements[i].style.color = meToo ? "#ff8c00" : "red";
-        }
+        // 直接插入style节点
+        var style = document.createElement("style");style.innerHTML="a[href='/problem/" + pid + "']{color:" + meToo ? "#ff8c00" : "red" + " !important;}";
     }
 
     function displayTot(tot) {
@@ -236,7 +230,7 @@ if (window.location.href.match(/space/) != null) { // 个人空间页面
     $('#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > p').append('<button class="am-btn am-btn-sm am-btn-primary" id="changeComp">更改</button>')
     $('#changeComp').click(setSettings);
 
-    var hisUid = window.location.href.match(/uid=[0-9]+/)[0].substr(4); // 获取当前所在个人空间主人的 UID
+    var hisUid = window.location.href.match(/user\/[0-9]+/)[0].substr(5); // 获取当前所在个人空间主人的 UID
     if (hisUid == GM_getValue("myUid")) { // 在自己的个人主页
         if (settings['repairAcCount']) {
             displayAcCnt(getAcCnt());
@@ -246,37 +240,5 @@ if (window.location.href.match(/space/) != null) { // 个人空间页面
         var myUid = GM_getValue("myUid");
         work();
     }
-} else if (window.location.href.match(/recordnew/) != null) { // 评测记录页面
-    var hisUidOrName = window.location.href.match(/uid=*/)[0].substr(4); // 如果是一道题目的全部评测记录页面，这里会出现异常，直接退出，刚好不需要比较
-    var hisUid = '';
-    $.get("/space/ajax_getuid?username=" + hisUidOrName, // 把用户名转化为 uid
-        function (data) {
-            hisUid = eval('(' + data + ')')['more']['uid'];
-        });
-    var myUid = GM_getValue("myUid");
-    if (hisUid != myUid) {
-        // console.log(myUid);
-        recordsWork();
-
-        function recordsWork() {
-            var myAc = getAc(myUid);
-            var myAttempt = myAc[1];
-            myAc = myAc[0];
-            myAc.sort();
-            myAttempt.sort();
-
-            var pageAcs = document.getElementsByClassName('am-g lg-table-bg0 lg-table-row');
-            for (var i = 0; i < pageAcs.length; i++) {
-                var thisPid = pageAcs[i].innerText.split('\n')[4].split(' ')[0];
-                // var thisColor = pageAcs[i].lastElementChild.firstElementChild.style.color;
-                if (binarySearch(thisPid, myAc)) { // 也 AC
-                    pageAcs[i].lastElementChild.firstElementChild.style.color = '#008000';
-                } else if (binarySearch(thisPid, myAttempt)) { // 尝试过
-                    pageAcs[i].lastElementChild.firstElementChild.style.color = '#ff8c00';
-                } else { // 未 AC
-                    pageAcs[i].lastElementChild.firstElementChild.style.color = 'red';
-                }
-            }
-        }
-    }
+}
 }
