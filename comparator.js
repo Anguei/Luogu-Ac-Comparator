@@ -81,14 +81,14 @@ function compare_new(hisAc, myAc, myAttempt) {
     function changeStyle(pid, meToo) // AC 过的题目
     {
         // 直接插入style节点
-        var style = document.createElement("style");style.innerHTML="a[href='/problem/" + pid + "']{color:" + meToo ? "#008000" : "red" + " !important;}";
+        var style = document.createElement("style");style.innerHTML="a[href='/problem/" + pid + "']{color:" +( meToo ? "#008000" : "red") + " !important;}";
         document.body.append(style);
     }
 
     function changeStyle2(pid, meToo) // 尝试过的题目
     {
         // 直接插入style节点
-        var style = document.createElement("style");style.innerHTML="a[href='/problem/" + pid + "']{color:" + meToo ? "#ff8c00" : "red" + " !important;}";
+        var style = document.createElement("style");style.innerHTML="a[href='/problem/" + pid + "']{color:" +( meToo ? "#ff8c00" : "red")+ " !important;}";
     }
 
    // function displayTot(tot) {
