@@ -4,7 +4,7 @@
 // @version      4.0
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
-// @match        https://www.luogu.org/user/*
+// @match        https://www.luogu.org/*
 // @grant        GM_setValue
 // @grant        GM_getValue
 // ==/UserScript==
@@ -188,6 +188,10 @@ function checkLocation(uid){
     if (locationReloaded)return;
     if (window.location.href.indexOf("/user/"+uid) == -1)locationReloaded=true,window.location.reload();
 }
+function checkLocation2(){
+    if (locationReloaded)return;
+    if (window.location.href.indexOf("/user/") != -1)locationReloaded=true,window.location.reload();
+}
 if (window.location.href.match(/\/user\//) != null) { // 个人空间页面
     var button=document.createElement("button");
     button.className="btn btn-config lfe-form-sz-middle";
@@ -195,7 +199,7 @@ if (window.location.href.match(/\/user\//) != null) { // 个人空间页面
     button.addEventListener("click",setSettings);
     button.setAttribute("data-v-dc8d06e8",1);//可能会变化
     putButton(button);
-    var hisUid = window.location.href.match(/user\/[0-9]+/)[0].substr(5); // 获取当前所在个人空间主人的 UID
+    var hisUid = window.location.href.match(/\/user\/[0-9]+/)[0].substr(5); // 获取当前所在个人空间主人的 UID
     if (hisUid == GM_getValue("myUid")) { // 在自己的个人主页
         if (settings['repairAcCount']) {
             displayAcCnt(getAcCnt(getAc(GM_getValue("myUid"))));
@@ -206,4 +210,6 @@ if (window.location.href.match(/\/user\//) != null) { // 个人空间页面
         work();
     }
     setInterval(checkLocation.bind(null,hisUid),100);//防止脚本失效
+}else{
+    setInterval(checkLocation2,100);//若进入个人中心，刷新页面使脚本生效
 }
