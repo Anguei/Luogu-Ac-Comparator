@@ -199,7 +199,7 @@ if (window.location.href.match(/\/user\//) != null) { // 个人空间页面
     button.addEventListener("click",setSettings);
     button.setAttribute("data-v-dc8d06e8",1);//可能会变化
     putButton(button);
-    var hisUid = window.location.href.match(/\/user\/[0-9]+/)[0].substr(5); // 获取当前所在个人空间主人的 UID
+    var hisUid = window.location.href.match(/\/user\/[0-9]+/)[0].substr(6); // 获取当前所在个人空间主人的 UID
     if (hisUid == GM_getValue("myUid")) { // 在自己的个人主页
         if (settings['repairAcCount']) {
             displayAcCnt(getAcCnt(getAc(GM_getValue("myUid"))));
