@@ -183,6 +183,10 @@ function putButton(button){
         document.querySelector('#app > div.main-container > main.lfe-body > div > div > div.user-header-top > div.user-action').append(button);
     }
 }
+
+function checkLocation(uid){
+    if (window.location.href.indexOf("/user/"+uid) == -1)window.location.reload();
+}
 if (window.location.href.match(/\/user\//) != null) { // 个人空间页面
     var button=document.createElement("button");
     button.className="btn btn-config lfe-form-sz-middle";
@@ -200,4 +204,5 @@ if (window.location.href.match(/\/user\//) != null) { // 个人空间页面
         var myUid = GM_getValue("myUid");
         work();
     }
+    setInterval(checkLocation.bind(null,hisUid),100);//防止脚本失效
 }
