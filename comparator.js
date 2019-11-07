@@ -4,8 +4,7 @@
 // @version      4.0
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       yyfcpp, qq1010903229
-// @match        https://www.luogu.org/space/*
-// @match        https://www.luogu.org/recordnew/lists*
+// @match        https://www.luogu.org/user/*
 // @grant        GM_setValue
 // @grant        GM_getValue
 // ==/UserScript==
@@ -37,33 +36,18 @@ function getAc(uid) {
     }
 
     function extractData(content) {
-        // 如果你有一个问题打算用正则表达式来解决，那么就是两个问题了。
-        // 所以窝还是用 split() 解决这一个问题吧！
-        var acs = content.replace(/<span style=\"display:none\">\s*.*?\s*<\/span>/g, ''); // 把随机的干扰题号去除
-        acs = acs.split('[<a data-pjax href="/problemnew/show/'); // 使用 split() 方法把通过的题目分割出来
-        acs = clearData(acs); // 把分割好的数据清洁一下
-        return acs;
-
-        function clearData(acs) {
-            var res = new Array();
-            res.push(new Array());
-            res.push(new Array());
-            var g = 0;
-            for (var i = 1; i < acs.length; i++) { // 把每一行非题号字符删掉（从 1 开始循环为了避开 split 之后产生的垃圾）
-                var tmpStr = "";
-                for (var j = 0; j < acs[i].length; j++) {
-                    if (acs[i][j] != '"') { // 引号后面的不是题号部分字符
-                        tmpStr = tmpStr.concat(acs[i][j]); // 拼接字符串
-                    }
-                    else break;
-                }
-                res[g].push(tmpStr);
-                if (acs[i].trim().length > 50) { // 这是最后一个题目 / 下一个是「尝试过的题目」
-                    g++;
-                }
-            }
-            return res;
+        var _feInjection=JSON.parse(decodeURIComponent(content.split('window._feInjection = JSON.parse(decodeURIComponent("')[1].split('"));')[0]));  // 使用 split() 方法把 _feInjection 分割出来
+        var res = new Array();
+        res.push(new Array());
+        res.push(new Array());
+        for (var i = 0; i < _feInjection.currentData.passedProblems.length; i++) {
+            res[0].push(_feInjection.currentData.passedProblems[i].pid);
         }
+        for (var i = 0; i < _feInjection.currentData.submittedProblems.length; i++) {
+            res[1].push(_feInjection.currentData.submittedProblems[i].pid);
+        }
+
+        return res;
     }
 }
 
@@ -90,9 +74,9 @@ function compare_new(hisAc, myAc, myAttempt) {
             }
         }
     }
-    if (settings['totDisplaying']) { // 如果打开显示未 AC 总数的开关
-        displayTot(tot); // 显示 AC 总数
-    }
+    //if (settings['totDisplaying']) { // 如果打开显示未 AC 总数的开关
+    //    displayTot(tot); // 显示 AC 总数
+    //}
 
     function changeStyle(pid, meToo) // AC 过的题目
     {
@@ -107,12 +91,12 @@ function compare_new(hisAc, myAc, myAttempt) {
         var style = document.createElement("style");style.innerHTML="a[href='/problem/" + pid + "']{color:" + meToo ? "#ff8c00" : "red" + " !important;}";
     }
 
-    function displayTot(tot) {
-        var cssSelector = "#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div:nth-child(3) > h2";
-        if(getAchievementElement() != undefined) cssSelector = "#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div:nth-child(4) > h2";// 有“成就”标签
-        document.querySelector(cssSelector).style.fontSize = "18px"; // 避免在一些低分辨率显示器上一行显示不开
-        document.querySelector(cssSelector).textContent = "通过题目（其中有 " + tot + " 道题你尚未 AC）";
-    }
+   // function displayTot(tot) {
+   //     var cssSelector = "#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div:nth-child(3) > h2";
+   //     if(getAchievementElement() != undefined) cssSelector = "#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div:nth-child(4) > h2";// 有“成就”标签
+   //     document.querySelector(cssSelector).style.fontSize = "18px"; // 避免在一些低分辨率显示器上一行显示不开
+   //     document.querySelector(cssSelector).textContent = "通过题目（其中有 " + tot + " 道题你尚未 AC）";
+   // }
 }
 
 
@@ -129,17 +113,14 @@ function binarySearch(target, array) { // 使用二分查找算法进行比较
 
 
 function displayAcCnt(AcCnt) {
-    for (var i = 2; i <= 3; i++) { // 解决页面结构不稳定导致的 AC 数无法正常显示问题
-        var cssSelector = "#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > ul > li:nth-child(" + i + ") > ul > li:nth-child(2) > span.lg-bignum-num"; // 适配新的洛谷 UI
-        if (document.querySelector(cssSelector) != null) { // 确定了 AC 数的选择器
-            document.querySelector(cssSelector).innerHTML = AcCnt + '<small></small>'; // 更新 AC 数
-            if (settings['colorChanging']) { // 如果打开颜色变化的开关
-                changeAcColor(cssSelector, AcCnt);
-            }
-            break;
+    if(document.querySelector('#app > div.main-container > main.lfe-body > div > div > div.user-header-bottom > div.user-stat-data > div > div:nth-child(4) > span.value') == null){ // 个人空间 4.0 的元素会延迟加载
+        setTimeout(displayAcCnt.bind(null,AcCnt),100);
+    }else{
+        document.querySelector('#app > div.main-container > main.lfe-body > div > div > div.user-header-bottom > div.user-stat-data > div > div:nth-child(4) > span.value').innerHTML=AcCnt;
+        if (settings['colorChanging']) { // 如果打开颜色变化的开关
+            changeAcColor('#app > div.main-container > main.lfe-body > div > div > div.user-header-bottom > div.user-stat-data > div > div:nth-child(4) > span.value', AcCnt);
         }
     }
-
     function changeAcColor(cssSelector, AcCnt) {
         if (AcCnt >= 1275) document.querySelector(cssSelector).style = "color:#FF0000;";
         else if (AcCnt >= 867) document.querySelector(cssSelector).style = "color:rgb(255," + ((1275 - AcCnt) / 2) + ",0);";
@@ -161,7 +142,7 @@ function work() {
         var start = new Date();
         compare_new(hisAc[0], myAc[0], myAc[1]);
         console.log('比较耗时：' + (new Date() - start) + 'ms');
-        displayAcCnt(getAcCnt());
+        displayAcCnt(getAcCnt(hisAc));
     } else {
         console.log("对方开启了完全隐私保护，无法比较。");
     }
@@ -181,7 +162,7 @@ function setSettings() {
         settings['limOfColoring'] = '99999';
     }
     GM_setValue('CompSettings', settings);
-    alert('设置成功，您可以随时在任意用户的个人空间点击「更改」按钮修改设置。')
+    alert('设置成功，您可以随时在任意用户的个人空间点击「比较器设置」按钮修改设置。')
 }
 
 
@@ -191,54 +172,32 @@ if (settings == undefined || settings == 'undefined') {
     settings = GM_getValue('CompSettings');
 }
 
-function getAchievementElement() { //查找“成就”标签
-    var elements=$('#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > .lg-article');
-    for (var i = 0; i < elements.length; i++) {
-        if(elements[i].innerText.indexOf("成就")!=-1)return elements[i];
-    }
-    return undefined;
+function getAcCnt(acs) {
+    return acs[0].length;
 }
 
-function getStatElement() {//查找“难易度统计”标签
-    var elements=$('#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > .lg-article');
-    for (var i = 0; i < elements.length; i++) {
-        if(elements[i].innerText.indexOf("难易度统计")!=-1)return elements[i];
+function putButton(button){
+    if(document.querySelector('#app > div.main-container > main.lfe-body > div > div > div.user-header-top > div.user-action') == null){ // 个人空间 4.0 的元素会延迟加载
+        setTimeout(putButton.bind(null,button),100);
+    }else{
+        document.querySelector('#app > div.main-container > main.lfe-body > div > div > div.user-header-top > div.user-action').append(button);
     }
-    return undefined;
 }
-
-function getAcceptedElement() {//查找“通过题目”标签
-    var elements=$('#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > .lg-article');
-    for (var i = 0; i < elements.length; i++) {
-        if(elements[i].innerText.indexOf("通过题目")!=-1)return elements[i];
-    }
-    return undefined;
-}
-
-function getAcCnt() {
-    var colors = getStatElement().innerText.match(/[0-9]+/g);
-    var res = 0;
-    for (var i = 0; i < colors.length; i++) {
-        res += parseInt(colors[i]);
-    }
-    // console.log('acCnt = ' + res);
-    return res;
-}
-
-
-if (window.location.href.match(/space/) != null) { // 个人空间页面
-    $('#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > section > div > p').append('<button class="am-btn am-btn-sm am-btn-primary" id="changeComp">更改</button>')
-    $('#changeComp').click(setSettings);
-
+if (window.location.href.match(/\/user\//) != null) { // 个人空间页面
+    var button=document.createElement("button");
+    button.className="btn btn-config lfe-form-sz-middle";
+    button.innerHTML="比较器设置";
+    button.addEventListener("click",setSettings);
+    button.setAttribute("data-v-dc8d06e8",1);//可能会变化
+    putButton(button);
     var hisUid = window.location.href.match(/user\/[0-9]+/)[0].substr(5); // 获取当前所在个人空间主人的 UID
     if (hisUid == GM_getValue("myUid")) { // 在自己的个人主页
         if (settings['repairAcCount']) {
-            displayAcCnt(getAcCnt());
+            displayAcCnt(getAcCnt(getAc(GM_getValue("myUid"))));
         }
     } else { // 在别人的主页
         // var myUid = document.getElementsByClassName('am-btn am-btn-sm am-btn-primary')[0].attributes['href'].value.match(/[0-9]+/)[0]; // 获取当前登录账号的 uid（洛谷前端改版后）
         var myUid = GM_getValue("myUid");
         work();
     }
-}
 }
