@@ -52,7 +52,7 @@ function getAc(uid) {
 }
 
 
-function compare_new(hisAc, myAc, myAttempt) {
+function compare_new(hisAc, hisAttempt, myAc, myAttempt) {
     myAc.sort(); // 排序，用于二分查找
     myAttempt.sort();
     var tot = hisAc.length;
@@ -74,17 +74,35 @@ function compare_new(hisAc, myAc, myAttempt) {
             }
         }
     }
-    //if (settings['totDisplaying']) { // 如果打开显示未 AC 总数的开关
-    //    displayTot(tot); // 显示 AC 总数
-    //}
+    var totAttemptSolve=0;
+    for (var i = 0; i < hisAttempt.length; i++) {
+        var meToo = false;
+        if (binarySearch(hisAttempt[i], myAc)) {
+            meToo = true;
+            totAttemptSolve++;
+        }
+        if (++colored <= settings['limOfColoring']) { // 如果尚未超过阈值
+            changeStyle(hisAttempt[i], meToo); // 改变题号颜色
+        }
+        if (!meToo) { // 没 AC 过，有没有尝试过？
+            if (binarySearch(hisAttempt[i], myAttempt)) {
+                meToo = true;
+            }
+            if (colored <= settings['limOfColoring']) {
+                changeStyle2(hisAttempt[i], meToo);
+            }
+        }
+    }
+    if (settings['totDisplaying']) { // 如果打开显示未 AC 总数的开关
+        displayTot(tot); // 显示 AC 总数
+        displayTot2(totAttemptSolve); // 显示 AC 总数
+    }
 
     function changeStyle(pid, meToo) // AC 过的题目
     {
         // 直接插入style节点
-        if(meToo){
-            var style = document.createElement("style");style.innerHTML="a[href='/problem/" + pid + "']{color:#52c41a !important;}";// 使用个人中心 v4.0 颜色
-            document.body.append(style);
-        }
+        if(meToo){var style = document.createElement("style");style.innerHTML="a[href='/problem/" + pid + "']{color:#52c41a !important;}";// 使用个人中心 v4.0 颜色
+        document.body.append(style);}
     }
 
     function changeStyle2(pid, meToo) // 尝试过的题目
@@ -94,12 +112,15 @@ function compare_new(hisAc, myAc, myAttempt) {
         document.body.append(style);
     }
 
-   // function displayTot(tot) {
-   //     var cssSelector = "#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div:nth-child(3) > h2";
-   //     if(getAchievementElement() != undefined) cssSelector = "#app > div.main-container > main.lfe-body > div#app-old > div.am-g.lg-main-content > div.am-u-md-4.lg-right > div:nth-child(4) > h2";// 有“成就”标签
-   //     document.querySelector(cssSelector).style.fontSize = "18px"; // 避免在一些低分辨率显示器上一行显示不开
-   //     document.querySelector(cssSelector).textContent = "通过题目（其中有 " + tot + " 道题你尚未 AC）";
-   // }
+   function displayTot(tot) {
+     // 直接插入style节点
+        var style = document.createElement("style");style.innerHTML="section.main div.card.padding-default:nth-child(2) h3.lfe-h3[data-v-67a49f6c]:after{content:\"（其中有 " + tot + " 道题你尚未 AC）\";font-size:12px;}";
+        document.body.append(style);
+   } function displayTot2(tot) {
+     // 直接插入style节点
+        var style = document.createElement("style");style.innerHTML="section.main div.card.padding-default:nth-child(1) h3.lfe-h3[data-v-67a49f6c]:after{content:\"（其中有 " + tot + " 道题你已经 AC）\";font-size:12px;}";
+        document.body.append(style);
+   }
 }
 
 
@@ -143,7 +164,7 @@ function work() {
     // console.log(hisAc);
     if (hisAc[0].length > 0) { // 对方没开完全隐私保护
         var start = new Date();
-        compare_new(hisAc[0], myAc[0], myAc[1]);
+        compare_new(hisAc[0], hisAc[1], myAc[0], myAc[1]);
         console.log('比较耗时：' + (new Date() - start) + 'ms');
         displayAcCnt(getAcCnt(hisAc));
     } else {
