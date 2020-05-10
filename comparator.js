@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         洛谷通过题目比较器 - yyfcpp
 // @namespace    http://tampermonkey.net/
-// @version      4.0
+// @version      4.1
 // @description  比较你和其他用户在洛谷通过的题目
 // @author       Anguei
 // @match        https://www.luogu.com.cn/user/*
@@ -53,7 +53,7 @@ window.onload = function() {
   }
 
 
-  if (window.location.href.match(/list/) == null) {
+  if (window.location.href.match(/list/) == null) { // 个人主页
     var hisUid = window.location.href.match(/[0-9]+/)[0];
     console.log(myUid);
     console.log(hisUid);
@@ -74,7 +74,7 @@ window.onload = function() {
       var hisTried = getProblems(hisJson['currentData']['submittedProblems']);
 
       setInterval(function() {
-        if (window.location.href.match(/#problem/) == null) return;
+        if (window.location.href.match(/#practice/) == null) return; // 练习页面
         for (var i = 0; i < hisAced.length; ++i) {
           if (myAced.indexOf(hisAced[i]) != -1)
             deco(2, i, '#008000');
@@ -111,7 +111,7 @@ window.onload = function() {
               ') > a')
           .style = 'color: ' + color;
     }
-  } else {
+  } else { // 评测记录
     var myJson = getJson(myUid);
     var myAcCnt = myJson['currentData']['passedProblems'].length;
     var myAced = getProblems(myJson['currentData']['passedProblems']);
@@ -120,8 +120,8 @@ window.onload = function() {
     setInterval(function() {
       for (var i = 1; i <= 20; ++i) {
         var selector =
-            '#app > div.main-container > main > div > div > div > div.border > div:nth-child(' +
-            i + ') > div > div.part.right-part > div.problem > div > a';
+            '#app > div.main-container > main > div > div > div > div.border.table > div > div:nth-child(' +
+            i + ') > div.problem > div > a';
         var problem = document.querySelector(selector).innerText;
         var problemId = problem.split(' ')[0];
 
